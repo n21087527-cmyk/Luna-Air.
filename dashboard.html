@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Air - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dark-theme">
+  <header class="main-header">
+    <div class="logo">
+      <img src="https://assets-persist.lovart.ai/agent_images/19a0e01f-0055-41b6-8f0b-3c87d88560ee.jpg" alt="Luna Air">
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="map.html">Map</a></li>
+        <li class="active"><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="notifications.html">Notifications</a></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <div class="notification-bell">
+        <img src="https://assets-persist.lovart.ai/agent_images/511aa9c4-0634-4da9-b343-86a0de625ff5.jpg" alt="Notifications">
+        <span class="notification-count">3</span>
+      </div>
+      <div class="user-profile">
+        <img src="https://assets-persist.lovart.ai/agent_images/c9a77818-c06b-4fec-b58c-8061e8f7df2d.jpg" alt="User Profile">
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-page-container">
+    <div class="dashboard-header">
+      <h1>Air Quality Dashboard</h1>
+      <div class="date-selector">
+        <button class="date-btn active">Today</button>
+        <button class="date-btn">Week</button>
+        <button class="date-btn">Month</button>
+        <button class="date-btn">Custom</button>
+      </div>
+    </div>
+    
+    <div class="dashboard-grid">
+      <div class="dashboard-card current-aqi">
+        <h3>Current AQI</h3>
+        <div class="aqi-display">
+          <span class="aqi-value">75</span>
+          <span class="aqi-label">AQI</span>
+        </div>
+        <div class="aqi-status moderate">Moderate</div>
+        <p class="aqi-description">Air quality is acceptable; however, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.</p>
+      </div>
+      
+      <div class="dashboard-card weather-card">
+        <h3>Weather Conditions</h3>
+        <div class="weather-">
+          <img src="https://assets-persist.lovart.ai/agent_images/1dfe7358-8e6a-4bdf-9962-c23899bc8082.jpg" alt="Cloudy" class="weather-icon">
+          <span class="temperature">68°F</span>
+          <span class="conditions">Partly Cloudy</span>
+        </div>
+        <div class="weather-details">
+          <div class="weather-detail">
+            <span class="label">Humidity</span>
+            <span class="value">65%</span>
+          </div>
+          <div class="weather-detail">
+            <span class="label">Wind</span>
+            <span class="value">8 mph NE</span>
+          </div>
+          <div class="weather-detail">
+            <span class="label">Pressure</span>
+            <span class="value">1012 hPa</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card pollutants-card">
+        <h3>Primary Pollutants</h3>
+        <div class="pollutant-bars">
+          <div class="pollutant-bar">
+            <div class="pollutant-label">PM2.5</div>
+            <div class="bar-container">
+              <div class="bar" style="width: 65%; background-color: var(--status-moderate);"></div>
+            </div>
+            <div class="pollutant-value">32 μg/m³</div>
+          </div>
+          <div class="pollutant-bar">
+            <div class="pollutant-label">Ozone</div>
+            <div class="bar-container">
+              <div class="bar" style="width: 45%; background-color: var(--status-good);"></div>
+            </div>
+            <div class="pollutant-value">0.045 ppm</div>
+          </div>
+          <div class="pollutant-bar">
+            <div class="pollutant-label">NO2</div>
+            <div class="bar-container">
+              <div class="bar" style="width: 25%; background-color: var(--status-good);"></div>
+            </div>
+            <div class="pollutant-value">15 ppb</div>
+          </div>
+          <div class="pollutant-bar">
+            <div class="pollutant-label">PM10</div>
+            <div class="bar-container">
+              <div class="bar" style="width: 30%; background-color: var(--status-good);"></div>
+            </div>
+            <div class="pollutant-value">28 μg/m³</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card health-card">
+        <h3>Health Recommendations</h3>
+        <div class="recommendation-item">
+          <div class="icon-container">
+            <img src="https://assets-persist.lovart.ai/agent_images/e30378ec-1ca5-42b8-9048-dd0e2971e78a.jpg" alt="Respiratory" class="health-icon">
+          </div>
+          <div class="recommendation-content">
+            <h4>Asthma Alert</h4>
+            <p>Consider using your inhaler before outdoor activities today.</p>
+          </div>
+        </div>
+        <div class="recommendation-item">
+          <div class="icon-container">
+            <img src="https://assets-persist.lovart.ai/agent_images/e3f286d2-77a1-421d-8eb6-3afe80cbef9b.jpg" alt="Heart" class="health-icon">
+          </div>
+          <div class="recommendation-content">
+            <h4>Heart Health</h4>
+            <p>Air quality is suitable for light to moderate exercise.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card forecast-card">
+        <h3>AQI Forecast</h3>
+        <div class="forecast-chart">
+          <!-- Placeholder for chart -->
+          <div class="chart-placeholder">
+            <div class="chart-line" style="height: 40%;"></div>
+            <div class="chart-line" style="height: 60%;"></div>
+            <div class="chart-line" style="height: 75%;"></div>
+            <div class="chart-line" style="height: 50%;"></div>
+            <div class="chart-line" style="height: 35%;"></div>
+            <div class="chart-line" style="height: 45%;"></div>
+            <div class="chart-line" style="height: 55%;"></div>
+          </div>
+          <div class="chart-labels">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card tips-card">
+        <h3>Air Quality Tips</h3>
+        <ul class="tips-list">
+          <li>Keep windows closed during high pollution periods</li>
+          <li>Use air purifiers with HEPA filters indoors</li>
+          <li>Avoid outdoor exercise during peak pollution hours</li>
+          <li>Stay hydrated to help your body process pollutants</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <script src="dashboard.js"></script>
+  <script src="js/DASHBOARD.JS"></script>
+</body>
+</html>

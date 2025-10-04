@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Air - Profile</title>
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body class="dark-theme">
+  <header class="main-header">
+    <div class="logo">
+      <img src="https://assets-persist.lovart.ai/agent_images/19a0e01f-0055-41b6-8f0b-3c87d88560ee.jpg" alt="Luna Air">
+    <nav class="main-nav">
+      <ul>
+        <li><a href="map.html">Map</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li class="active"><a href="profile.html">Profile</a></li>
+        <li><a href="notifications.html">Notifications</a></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <div class="notification-bell">
+        <img src="https://assets-persist.lovart.ai/agent_images/511aa9c4-0634-4da9-b343-86a0de625ff5.jpg" alt="Notifications">
+        <span class="notification-count">3</span>
+      </div>
+      <div class="user-profile">
+        <img src="https://assets-persist.lovart.ai/agent_images/c9a77818-c06b-4fec-b58c-8061e8f7df2d.jpg" alt="User Profile">
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-page-container">
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <img src="https://assets-persist.lovart.ai/agent_images/c9a77818-c06b-4fec-b58c-8061e8f7df2d.jpg" alt="User Profile">
+        <button class="change-avatar-btn">Change Photo</button>
+      </div>
+      <div class="profile-info">
+        <h1>Alex Johnson</h1>
+        <p class="profile-location">New York City, NY</p>
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value">32</span>
+            <span class="stat-label">Check-ins</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">5</span>
+            <span class="stat-label">Locations</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">8</span>
+            <span class="stat-label">Reports</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn btn-primary">Edit Profile</button>
+        <button class="btn btn-secondary">Settings</button>
+      </div>
+    </div>
+    
+    <div class="profile-tabs">
+      <button class="profile-tab active" data-tab="health">Health Profile</button>
+      <button class="profile-tab" data-tab="preferences">Preferences</button>
+      <button class="profile-tab" data-tab="history">History</button>
+      <button class="profile-tab" data-tab="devices">Connected Devices</button>
+    </div>
+    
+    <div class="profile-content">
+      <div class="profile-section health-profile active" id="health-profile">
+        <h2>Health Profile</h2>
+        
+        <div class="health-conditions">
+          <h3>Health Conditions</h3>
+          <div class="condition-tags">
+            <span class="condition-tag">Asthma</span>
+            <span class="condition-tag">Allergies</span>
+            <button class="add-condition-btn">+ Add</button>
+          </div>
+        </div>
+        
+        <div class="sensitivity-settings">
+          <h3>Pollution Sensitivity</h3>
+          <div class="sensitivity-item">
+            <span class="sensitivity-label">PM2.5</span>
+            <div class="sensitivity-slider">
+              <input type="range" min="1" max="5" value="4" class="slider">
+            </div>
+            <span class="sensitivity-value">High</span>
+          </div>
+          <div class="sensitivity-item">
+            <span class="sensitivity-label">Ozone</span>
+            <div class="sensitivity-slider">
+              <input type="range" min="1" max="5" value="3" class="slider">
+            </div>
+            <span class="sensitivity-value">Medium</span>
+          </div>
+          <div class="sensitivity-item">
+            <span class="sensitivity-label">Pollen</span>
+            <div class="sensitivity-slider">
+              <input type="range" min="1" max="5" value="5" class="slider">
+            </div>
+            <span class="sensitivity-value">Very High</span>
+          </div>
+        </div>
+        
+        <div class="activity-levels">
+          <h3>Activity Levels</h3>
+          <div class="activity-item">
+            <span class="activity-icon">🏃</span>
+            <span class="activity-label">Running</span>
+            <span class="activity-frequency">3x per week</span>
+          </div>
+          <div class="activity-item">
+            <span class="activity-icon">🚴</span>
+            <span class="activity-label">Cycling</span>
+            <span class="activity-frequency">2x per week</span>
+          </div>
+          <div class="activity-item">
+            <span class="activity-icon">🧘</span>
+            <span class="activity-label">Yoga</span>
+            <span class="activity-frequency">2x per week</span>
+          </div>
+          <button class="add-activity-btn">+ Add Activity</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="profile.js"></script>
+  <script src="js/server.js"></script>
+  
+</body>
+</html>

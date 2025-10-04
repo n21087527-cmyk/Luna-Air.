@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Air - Calendar</title>
+  <style>
+    :root {
+      --primary-purple: #8A2BE2;
+      --primary-purple-light: #B87CFF;
+      --primary-purple-dark: #5D1A9E;
+      
+      --bg-black: #121212;
+      --bg-black-light: #1E1E1E;
+      --bg-black-dark: #0A0A0A;
+      
+      --text-white: #FFFFFF;
+      --text-light-gray: #E0E0E0;
+      --text-gray: #AAAAAA;
+      
+      --status-good: #9D4EDD;
+      --status-moderate: #4361EE;
+      --status-poor: #FB8500;
+      --status-bad: #E63946;
+      
+      --shadow-purple: rgba(138, 43, 226, 0.3);
+      --gradient-purple: linear-gradient(135deg, #8A2BE2, #5D1A9E);
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Roboto', sans-serif;
+      background-color: var(--bg-black);
+      color: var(--text-white);
+      line-height: 1.6;
+    }
+
+    .dark-theme {
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      --card-bg: var(--bg-black-light);
+    }
+
+    /* Navigation Bar Styles */
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--bg-black-dark);
+      border-bottom: 1px solid var(--primary-purple-dark);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-nav-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .logo {
+      margin-right: 2rem;
+    }
+
+    .logo img {
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .main-nav {
+      flex: 1;
+    }
+
+    .main-nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    .main-nav li {
+      margin: 0 1rem;
+      position: relative;
+    }
+
+    .main-nav a {
+      color: var(--text-light-gray);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      transition: color 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .main-nav a:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .main-nav li.active a {
+      color: var(--primary-purple);
+    }
+
+    .main-nav li.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary-purple);
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-white);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Calendar Page Specific Styles */
+    .calendar-page-container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .calendar-header h1 {
+      color: var(--text-white);
+      font-size: 1.8rem;
+    }
+
+    .calendar-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .month-selector {
+      display: flex;
+      align-items: center;
+    }
+
+    .month-selector button {
+      background: none;
+      border: none;
+      color: var(--text-light-gray);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .month-selector button:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .month-selector span {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 0 1rem;
+    }
+
+    .view-selector {
+      display: flex;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--primary-purple-dark);
+    }
+
+    .view-selector button {
+      background-color: var(--bg-black-light);
+      border: none;
+      color: var(--text-light-gray);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .view-selector button:hover {
+      background-color: rgba(138, 43, 226, 0.1);
+    }
+
+    .view-selector button.active {
+      background-color: var(--primary-purple);
+      color: var(--text-white);
+    }
+
+    .calendar-grid {
+      background-color: var(--bg-black-light);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .calendar-day-header {
+      padding: 1rem;
+      text-align: center;
+      font-weight: 500;
+      color: var(--primary-purple-light);
+      border-right: 1px solid rgba(138, 43, 226, 0.1);
+    }
+
+    .calendar-day-header:last-child {
+      border-right: none;
+    }
+
+    .calendar-weeks {
+      display: grid;
+      grid-template-rows: repeat(6, 1fr);
+    }
+
+    .calendar-week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border-bottom: 1px solid rgba(138, 43, 226, 0.1);
+    }
+
+    .calendar-week:last-child {
+      border-bottom: none;
+    }
+
+    .calendar-date {
+      min-height: 100px;
+      padding: 0.5rem;
+      border-right: 1px solid rgba(138, 43, 226, 0.1);
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .calendar-date:hover {
+      background-color: rgba(138, 43, 226, 0.05);
+    }
+
+    .calendar-date:last-child {
+      border-right: none;
+    }
+
+    .date-number {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .date-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .aqi-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .aqi-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .aqi-dot.good {
+      background-color: var(--status-good);
+    }
+
+    .aqi-dot.moderate {
+      background-color: var(--status-moderate);
+    }
+
+    .aqi-dot.unhealthy-sensitive {
+      background-color: #4CC9F0;
+    }
+
+    .aqi-dot.unhealthy {
+      background-color: var(--status-poor);
+    }
+
+    .aqi-dot.very-unhealthy {
+      background-color: var(--status-bad);
+    }
+
+    .other-month {
+      opacity: 0.5;
+    }
+
+    .today {
+      background-color: rgba(138, 43, 226, 0.1);
+    }
+
+    .today .date-number {
+      color: var(--primary-purple-light);
+      font-weight: 700;
+    }
+
+    .today::after {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--primary-purple);
+    }
+
+    .weather-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .calendar-legend {
+      margin-top: 1.5rem;
+      background-color: var(--bg-black-light);
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .legend-title {
+      font-size: 1rem;
+      color: var(--primary-purple-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .calendar-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .calendar-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background-color: var(--bg-black-light);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--primary-purple-dark);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      color: var(--primary-purple-light);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-light-gray);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .modal-body {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+      margin-bottom: 1rem;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      font-size: 1rem;
+      color: var(--text-white);
+    }
+
+    .aqi-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .aqi-detail-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .logo-nav-container {
+        flex: 1;
+      }
+      
+      .calendar-date {
+        min-height: 80px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-header {
+        flex-wrap: wrap;
+      }
+      
+      .logo-nav-container {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .mobile-menu-toggle {
+        display: block;
+      }
+      
+      .main-nav {
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        order: 3;
+      }
+      
+      .main-nav.active {
+        max-height: 300px;
+      }
+      
+      .main-nav ul {
+        flex-direction: column;
+        padding: 1rem 0;
+      }
+      
+      .main-nav li {
+        margin: 0.5rem 0;
+      }
+      
+      .calendar-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .calendar-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .calendar-days {
+        font-size: 0.8rem;
+      }
+      
+      .calendar-date {
+        min-height: 60px;
+        padding: 0.25rem;
+      }
+      
+      .date-number {
+        font-size: 0.9rem;
+      }
+      
+      .aqi-indicator {
+        font-size: 0.75rem;
+      }
+      
+      .weather-icon {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .calendar-page-container {
+        padding: 1rem;
+      }
+      
+      .calendar-day-header {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+      
+      .date-content {
+        display: none;
+      }
+      
+      .calendar-date {
+        min-height: 40px;
+      }
+      
+      .calendar-date:hover .date-content {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--bg-black-light);
+        border: 1px solid var(--primary-purple-dark);
+        border-radius: 4px;
+        padding: 0.5rem;
+        z-index: 10;
+        width: 150px;
+      }
+      
+      .legend-items {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <header class="main-header">
+    <div class="logo-nav-container">
+      <div class="logo">
+        <img src="https://assets-temp.lovart.ai/img/b4f00ec4a0124bdc93d67750f26637f4/dd22885d6af15b1f8691b9254d6bb12201c3ac9b.jpg" alt="Luna Air">
+      </div>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        ☰
+      </button>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="map.html">Map</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li class="active"><a href="calendar.html">Calendar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="calendar-page-container">
+    <div class="calendar-header">
+      <h1>Air Quality Calendar</h1>
+      <div class="calendar-controls">
+        <div class="month-selector">
+          <button id="prev-month">◀</button>
+          <span id="current-month">October 2025</span>
+          <button id="next-month">▶</button>
+        </div>
+        <div class="view-selector">
+          <button class="active">Month</button>
+          <button>Week</button>
+          <button>Day</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="calendar-grid">
+      <div class="calendar-days">
+        <div class="calendar-day-header">Sunday</div>
+        <div class="calendar-day-header">Monday</div>
+        <div class="calendar-day-header">Tuesday</div>
+        <div class="calendar-day-header">Wednesday</div>
+        <div class="calendar-day-header">Thursday</div>
+        <div class="calendar-day-header">Friday</div>
+        <div class="calendar-day-header">Saturday</div>
+      </div>
+      <div class="calendar-weeks">
+        <div class="calendar-week">
+          <div class="calendar-date other-month">
+            <div class="date-number">29</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 65</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date other-month">
+            <div class="date-number">30</div>
+            <div class="date-content">
+              <div class="weather-icon">☁️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 72</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">1</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 42</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">2</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 38</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">3</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 58</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date today">
+            <div class="date-number">4</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 75</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">5</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 110</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-week">
+          <div class="calendar-date">
+            <div class="date-number">6</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 125</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">7</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy"></div>
+                <span>AQI: 155</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">8</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy"></div>
+                <span>AQI: 162</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">9</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 85</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">10</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 45</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">11</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 48</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">12</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 62</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-week">
+          <div class="calendar-date">
+            <div class="date-number">13</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 78</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">14</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 82</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">15</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 90</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">16</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 105</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">17</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 68</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">18</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 42</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">19</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 50</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-week">
+          <div class="calendar-date">
+            <div class="date-number">20</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 65</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">21</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 72</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">22</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 88</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">23</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 115</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">24</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 125</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">25</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 80</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">26</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 48</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-week">
+          <div class="calendar-date">
+            <div class="date-number">27</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 45</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">28</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 60</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">29</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 75</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">30</div>
+            <div class="date-content">
+              <div class="weather-icon">☀️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 82</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date">
+            <div class="date-number">31</div>
+            <div class="date-content">
+              <div class="weather-icon">⛅</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot unhealthy-sensitive"></div>
+                <span>AQI: 105</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date other-month">
+            <div class="date-number">1</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot moderate"></div>
+                <span>AQI: 68</span>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-date other-month">
+            <div class="date-number">2</div>
+            <div class="date-content">
+              <div class="weather-icon">🌧️</div>
+              <div class="aqi-indicator">
+                <div class="aqi-dot good"></div>
+                <span>AQI: 42</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar-legend">
+      <div class="legend-title">Air Quality Index (AQI)</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="aqi-dot good"></div>
+          <span>Good (0-50)</span>
+        </div>
+        <div class="legend-item">
+          <div class="aqi-dot moderate"></div>
+          <span>Moderate (51-100)</span>
+        </div>
+        <div class="legend-item">
+          <div class="aqi-dot unhealthy-sensitive"></div>
+          <span>Unhealthy for Sensitive Groups (101-150)</span>
+        </div>
+        <div class="legend-item">
+          <div class="aqi-dot unhealthy"></div>
+          <span>Unhealthy (151-200)</span>
+        </div>
+        <div class="legend-item">
+          <div class="aqi-dot very-unhealthy"></div>
+          <span>Very Unhealthy (201-300)</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="calendar-modal" id="day-detail-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">October 4, 2025</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-item">
+          <div class="detail-label">Air Quality</div>
+          <div class="detail-value aqi-detail">
+            <div class="aqi-detail-dot moderate"></div>
+            <span>AQI: 75 (Moderate)</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Weather</div>
+          <div class="detail-value">
+            <span class="weather-icon">☀️</span> Sunny, 68°F
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Pollutants</div>
+          <div class="detail-value">
+            <ul style="list-style: none; padding: 0;">
+              <li>PM2.5: 32 μg/m³</li>
+              <li>Ozone: 0.045 ppm</li>
+              <li>NO2: 15 ppb</li>
+              <li>PM10: 28 μg/m³</li>
+            </ul>
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Health Recommendation</div>
+          <div class="detail-value">
+            Air quality is acceptable; however, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" style="background: var(--gradient-purple); border: none; color: white; padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer;">Set Reminder</button>
+        <button class="btn btn-secondary modal-close-btn" style="background: var(--bg-black-light); border: 1px solid var(--primary-purple); color: white; padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+  const mainNav = document.getElementById('main-nav');
+  const prevMonthBtn = document.getElementById('prev-month');
+  const nextMonthBtn = document.getElementById('next-month');
+  const currentMonthDisplay = document.getElementById('current-month');
+  const calendarDates = document.querySelectorAll('.calendar-date');
+  const modal = document.getElementById('day-detail-modal');
+  const modalCloseBtn = document.querySelector('.modal-close');
+  const modalCloseBtnFooter = document.querySelector('.modal-close-btn');
+  
+  // Mobile menu toggle
+  mobileMenuToggle.addEventListener('click', function() {
+    mainNav.classList.toggle('active');
+    mobileMenuToggle.textContent = mainNav.classList.contains('active') ? '✕' : '☰';
+  });
+  
+  // Month navigation
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
+  let currentDate = new Date(2025, 9, 4); // October 4, 2025
+  
+  function updateMonth() {
+    const month = months[currentDate.getMonth()];
+    const year = currentDate.getFullYear();
+    currentMonthDisplay.textContent = `${month} ${year}`;
+  }
+  
+  prevMonthBtn.addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateMonth();
+    // In a real app, you would fetch new calendar data here
+  });
+  
+  nextMonthBtn.addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateMonth();
+    // In a real app, you would fetch new calendar data here
+  });
+  
+  // Calendar date click to show modal
+  calendarDates.forEach(date => {
+    date.addEventListener('click', function() {
+      const dateNumber = this.querySelector('.date-number').textContent;
+      const isOtherMonth = this.classList.contains('other-month');
+      const month = isOtherMonth ? 
+        (parseInt(dateNumber) > 15 ? months[currentDate.getMonth() - 1] : months[currentDate.getMonth() + 1]) : 
+        months[currentDate.getMonth()];
+      
+      const modalTitle = document.querySelector('.modal-title');
+      modalTitle.textContent = `${month} ${dateNumber}, ${currentDate.getFullYear()}`;
+      
+      // In a real app, you would fetch the day's details here
+      
+      modal.classList.add('active');
+    });
+  });
+  
+  // Close modal
+  modalCloseBtn.addEventListener('click', function() {
+    modal.classList.remove('active');
+  });
+  
+  modalCloseBtnFooter.addEventListener('click', function() {
+    modal.classList.remove('active');
+  });
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  });
+  
+  // View selector buttons
+  const viewButtons = document.querySelectorAll('.view-selector button');
+  viewButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      viewButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      
+      const view = this.textContent.toLowerCase();
+      switchCalendarView(view);
+    });
+  });
+  
+  const calendarGrid = document.querySelector('.calendar-grid');
+  
+  function switchCalendarView(view) {
+    if (view === 'month') {
+      location.reload();
+    } else if (view === 'week') {
+      showWeekView();
+    } else if (view === 'day') {
+      showDayView();
+    }
+  }
+  
+  function showWeekView() {
+    let weekHTML = '<div style="background: var(--bg-black-light); border-radius: 8px; padding: 1.5rem;"><h3 style="color: var(--primary-purple-light); margin-bottom: 1rem;">Week View - October 2025</h3><div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem;">';
+    
+    const days = ['Sun 29', 'Mon 30', 'Tue 1', 'Wed 2', 'Thu 3', 'Fri 4', 'Sat 5'];
+    const aqi = [65, 72, 42, 38, 58, 75, 110];
+    const weather = ['⛅', '☁️', '🌧️', '🌧️', '⛅', '☀️', '☀️'];
+    
+    for (let i = 0; i < 7; i++) {
+      const isToday = i === 5;
+      weekHTML += '<div style="background: ' + (isToday ? 'rgba(138, 43, 226, 0.1)' : 'var(--bg-black-dark)') + '; border: 1px solid var(--primary-purple-dark); border-radius: 8px; padding: 1rem; text-align: center;"><div style="color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">' + days[i] + '</div><div style="font-size: 2rem; margin-bottom: 0.5rem;">' + weather[i] + '</div><div style="font-size: 0.9rem;">AQI: ' + aqi[i] + '</div></div>';
+    }
+    
+    weekHTML += '</div></div>';
+    calendarGrid.innerHTML = weekHTML;
+  }
+  
+  function showDayView() {
+    let dayHTML = '<div style="background: var(--bg-black-light); border-radius: 8px; padding: 2rem;"><h2 style="color: var(--primary-purple-light); margin-bottom: 1.5rem; text-align: center;">Saturday, October 4, 2025</h2>';
+    dayHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;"><div style="background: var(--bg-black-dark); border: 1px solid var(--primary-purple-dark); border-radius: 8px; padding: 1.5rem; text-align: center;"><div style="font-size: 4rem;">☀️</div><div style="font-size: 1.2rem; color: var(--text-white);">Sunny</div><div style="font-size: 2rem; color: var(--primary-purple-light); font-weight: bold;">68°F</div></div>';
+    dayHTML += '<div style="background: var(--bg-black-dark); border: 1px solid var(--primary-purple-dark); border-radius: 8px; padding: 1.5rem;"><div style="color: var(--text-gray);">Air Quality</div><div style="font-size: 2.5rem; color: var(--primary-purple-light); font-weight: bold;">75</div><div style="color: var(--text-light-gray);">Moderate</div></div></div>';
+    dayHTML += '<h3 style="color: var(--primary-purple-light); margin-bottom: 1rem;">Hourly Forecast</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem;">';
+    
+    const hours = ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM'];
+    const hourlyAQI = [65, 70, 75, 82, 78, 72];
+    const hourlyWeather = ['🌤️', '☀️', '☀️', '☀️', '⛅', '🌙'];
+    
+    for (let i = 0; i < 6; i++) {
+      dayHTML += '<div style="background: var(--bg-black-dark); border: 1px solid rgba(138, 43, 226, 0.2); border-radius: 8px; padding: 1rem; text-align: center;"><div style="font-size: 0.85rem; color: var(--text-gray);">' + hours[i] + '</div><div style="font-size: 1.5rem;">' + hourlyWeather[i] + '</div><div style="font-size: 0.9rem;">AQI: ' + hourlyAQI[i] + '</div></div>';
+    }
+    
+    dayHTML += '</div></div>';
+    calendarGrid.innerHTML = dayHTML;
+  }
+});
+</script>
+<script src="js/calendar-api.js"></script>
+</body>
+</html>

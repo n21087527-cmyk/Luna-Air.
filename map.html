@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Air - Weather Map</title>
+  <style>
+    :root {
+      --primary-purple: #8A2BE2;
+      --primary-purple-light: #B87CFF;
+      --primary-purple-dark: #5D1A9E;
+      
+      --bg-black: #121212;
+      --bg-black-light: #1E1E1E;
+      --bg-black-dark: #0A0A0A;
+      
+      --text-white: #FFFFFF;
+      --text-light-gray: #E0E0E0;
+      --text-gray: #AAAAAA;
+      
+      /* Weather condition colors */
+      --sunny: #FDB813;
+      --cloudy: #B6C4D1;
+      --rainy: #4682B4;
+      --stormy: #483D8B;
+      --snowy: #E6E6FA;
+      --foggy: #D3D3D3;
+      
+      --shadow-purple: rgba(138, 43, 226, 0.3);
+      --gradient-purple: linear-gradient(135deg, #8A2BE2, #5D1A9E);
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Roboto', sans-serif;
+      background-color: var(--bg-black);
+      color: var(--text-white);
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dark-theme {
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      --card-bg: var(--bg-black-light);
+    }
+
+    /* Navigation Bar Styles */
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--bg-black-dark);
+      border-bottom: 1px solid var(--primary-purple-dark);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo img {
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .main-nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    .main-nav li {
+      margin: 0 1rem;
+      position: relative;
+    }
+
+    .main-nav a {
+      color: var(--text-light-gray);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      transition: color 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .main-nav a:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .main-nav li.active a {
+      color: var(--primary-purple);
+    }
+
+    .main-nav li.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary-purple);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+    }
+
+    .notification-bell {
+      position: relative;
+      margin-right: 1.5rem;
+      cursor: pointer;
+    }
+
+    .notification-bell svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-light-gray);
+    }
+
+    .notification-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--primary-purple);
+      color: var(--text-white);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--primary-purple);
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    /* Weather Map Specific Styles */
+    .map-page-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .map-container {
+      position: relative;
+      flex: 1;
+      background-color: var(--bg-black);
+      overflow: hidden;
+    }
+
+    #weather-map {
+      height: 100%;
+      width: 100%;
+      position: relative;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNTAgMCBMIDAgMCAwIDUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==');
+      background-size: 50px 50px;
+    }
+
+    .weather-location {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg-black-dark);
+      font-weight: bold;
+      font-size: 1.2rem;
+      border: 2px solid var(--text-white);
+      z-index: 10;
+    }
+
+    .weather-location:hover {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+
+    .weather-location.sunny {
+      background-color: var(--sunny);
+    }
+
+    .weather-location.cloudy {
+      background-color: var(--cloudy);
+    }
+
+    .weather-location.rainy {
+      background-color: var(--rainy);
+    }
+
+    .weather-location.stormy {
+      background-color: var(--stormy);
+    }
+
+    .weather-location.snowy {
+      background-color: var(--snowy);
+    }
+
+    .weather-location.foggy {
+      background-color: var(--foggy);
+    }
+
+    .weather-tooltip {
+      position: absolute;
+      background-color: var(--bg-black-light);
+      color: var(--text-white);
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      width: 200px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border: 1px solid var(--primary-purple-dark);
+    }
+
+    .weather-tooltip h3 {
+      color: var(--primary-purple-light);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .weather-tooltip .weather-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .weather-tooltip .weather-detail {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-tooltip .label {
+      font-size: 0.8rem;
+      color: var(--text-gray);
+    }
+
+    .weather-tooltip .value {
+      font-size: 0.9rem;
+      color: var(--text-white);
+    }
+
+    .weather-tooltip .condition {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .weather-tooltip .condition-icon {
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      right: 1rem;
+      display: flex;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .search-bar {
+      display: flex;
+      background-color: var(--bg-black-light);
+      border-radius: 4px;
+      padding: 0.5rem;
+      width: 300px;
+      border: 1px solid var(--primary-purple-dark);
+    }
+
+    .search-bar input {
+      background: transparent;
+      border: none;
+      color: var(--text-white);
+      width: 100%;
+      padding: 0.25rem 0.5rem;
+      outline: none;
+    }
+
+    .search-button {
+      background-color: var(--primary-purple);
+      border: none;
+      border-radius: 4px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-button svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-white);
+    }
+
+    .zoom-controls {
+      display: flex;
+      flex-direction: column;
+      margin-right: 1rem;
+    }
+
+    .zoom-controls button {
+      background-color: var(--bg-black-light);
+      border: 1px solid var(--primary-purple-dark);
+      color: var(--text-white);
+      width: 30px;
+      height: 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zoom-controls .zoom-in {
+      border-radius: 4px 4px 0 0;
+      border-bottom: none;
+    }
+
+    .zoom-controls .zoom-out {
+      border-radius: 0 0 4px 4px;
+    }
+
+    .map-legend {
+      background-color: var(--bg-black-light);
+      border-radius: 4px;
+      padding: 0.75rem;
+      border: 1px solid var(--primary-purple-dark);
+      max-width: 250px;
+    }
+
+    .map-legend h4 {
+      margin-bottom: 0.5rem;
+      color: var(--primary-purple-light);
+      font-size: 0.9rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+    }
+
+    .color-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      margin-right: 0.5rem;
+    }
+
+    .color-swatch.sunny {
+      background-color: var(--sunny);
+    }
+
+    .color-swatch.cloudy {
+      background-color: var(--cloudy);
+    }
+
+    .color-swatch.rainy {
+      background-color: var(--rainy);
+    }
+
+    .color-swatch.stormy {
+      background-color: var(--stormy);
+    }
+
+    .color-swatch.snowy {
+      background-color: var(--snowy);
+    }
+
+    .color-swatch.foggy {
+      background-color: var(--foggy);
+    }
+
+    .map-tabs {
+      display: flex;
+      background-color: var(--bg-black-dark);
+      border-top: 1px solid var(--primary-purple-dark);
+      height: 50px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .tab:hover {
+      background-color: rgba(138, 43, 226, 0.1);
+      color: var(--primary-purple-light);
+    }
+
+    .tab.active {
+      color: var(--primary-purple);
+      border-bottom: 3px solid var(--primary-purple);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-header {
+        flex-wrap: wrap;
+      }
+      
+      .logo {
+        margin-bottom: 0.5rem;
+      }
+      
+      .main-nav {
+        order: 3;
+        width: 100%;
+        margin-top: 0.5rem;
+        overflow-x: auto;
+      }
+      
+      .main-nav ul {
+        width: max-content;
+      }
+      
+      .search-bar {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .map-controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .zoom-controls {
+        margin-top: 1rem;
+        margin-right: 0;
+        flex-direction: row;
+      }
+      
+      .zoom-controls .zoom-in {
+        border-radius: 4px 0 0 4px;
+        border-right: none;
+        border-bottom: 1px solid var(--primary-purple-dark);
+      }
+      
+      .zoom-controls .zoom-out {
+        border-radius: 0 4px 4px 0;
+      }
+      
+      .map-legend {
+        margin-top: 1rem;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-header {
+        padding: 1rem;
+      }
+      
+      .map-controls {
+        top: 0.5rem;
+        left: 0.5rem;
+        right: 0.5rem;
+      }
+      
+      .map-tabs {
+        height: auto;
+        flex-wrap: wrap;
+      }
+      
+      .tab {
+        flex: 1 0 50%;
+        padding: 0.75rem;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <header class="main-header">
+    <div class="logo">
+      <img src="Luna Air Logo.jpg" alt="Luna Air">
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li class="active"><a href="index.html">Weather Map</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="notifications.html">Notifications</a></li>
+      </ul>
+    </nav>
+    <div class="user-menu">
+      <div class="notification-bell">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-count">3</span>
+      </div>
+      <div class="user-profile">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJkAAACUCAMAAAC3HHtWAAAAZlBMVEUAAAD////u7u7t7e36+vrv7+/09PT39/fp6em8vLwsLCzj4+Pe3t7U1NTR0dGqqqqAgIDFxcWioqJ3d3dXV1deXl44ODglJSVFRUWysrI+Pj6Ojo5ra2syMjKbm5tRUVEbGxsSEhKuJs35AAAOSUlEQVR4nN1c2XazvA6NjS1BIQQyDzRp3v8lf8DzRCBNv7XO0RVVDezYsmazogMx0hNmlGYwXJHMYVI+Mnl/lUWZqG/3R7LhQdnIhEyNHJncZ2Yec8UHEu8brgSyNBM9Jrgjx0czw2QeE10mmWCuJMqe5O8ZLg0TxO9xmSgmtifqjRRMNpeZ+UyqmRqZnlTuTj9EmBRi02/kgLMIkzL3dl9iJDIjMf9DyGgUWRZhGmQIgGKFCWP9HzG4NA13EhmdnrMo3P5q2Aa9aFfF5tbsusP+0HXNbVOUHNjAfwmC+xPJzUixN5H1NG4JGK7k3hwINVPuOMMcnl5fbt33KqSv7napM71N9e0Ye+bIZNwbuTL7pv894WYamVJLmX2TcQDIN4fzTwSVop/rYVv147je1dTa/9xnZh5z5WpaKTgvNC3DvLh9TYAydGqKEn2JsTQtTWvad5DlzWMWLEHnJn8LWWatUUQLoplkqQWz9rwAlqBjm9va3DyTx5hi5EqI9Ejm0mOiviRss2S6rInbInGehLHH28x51kkxs03srafzftAW2+1mu701Xfc4R2VwmydMlrVYxjrBIhtwCdfxq9m06zLXmnb4yXletZcmRHfcCBH7sHXiUF/9FeouuYBDXetEhOBcOv+XHFsOn7VOGcW88Zbw3qsDiNpNaYg4YN7ePT28q1AhyyKOoY3M0rpkkHDpmvWXwiaMTIDCWZzToUYC4ChtsDT5cBOKK1x3J+fWC4x7gXgjrdvlDpijNRBvzsNvawY0NAzaXzPMfrYBK3fimgz0LvO0huXuzdG0vYTZmuLrDgwS3nZoLYRSha2N7dr2xn6xDYhIJ1yc+cKJOCCObJgedrfFYQOLkWXBnFFmi36Xx0DMilDynf0cZjlx70UorOzM8x4tk3CdkeI3kNF/8m+34g5W761HlYI53D4RocjNZQZopICWSrpxdRfzRvaMqtg2u92u2bZiiqywSCOFu3nYMUN1u3m7HbRN6zNYG+k41nqkr1Sry8HefD9NzRNKbm209amGbFKf+chsGwDlUT/oUOmRXoRS3UKv9rFlhEaQsdJI23evdN+0TrA2r7wjjyOrugCWvCOHmGHArR7xVcMMZJGgl5Vm6i9AfQdkUMcctqcYqpHOLYsEvRQKIyBiG0R9DVzBQCJC0VfjJXIt/N81cf6P42W/E/N9FJOim7yJ6ZtGH88I2zVH/5n6RUnrRLmW6tNa7JvA0a2OcUSaGuCxvIO579EvXsqnTVgnjlrBntdy7xsZECPXL3D1dCiHu8T7jLqHSpu7DvlC64Taez1VEM1SYfUaWA+t16SZj4xCrmftDlMRCnXWaEAGtbrzu1c7MbeCV7EIOKSGU381e+cdjKy1kFhNT65lcJJpDds7PD0Twx0wN1K5E28HjFesesr/P0vr36j3Qiqvof2xi/w91F6TYcm3CSAhVfGMi1YeDVJHn9EJ64T6ri2x4NqPniH9ivYYzVKhdq62GNG00diJ67U8YCxsGZ4yrchcKiCLIKOoDNWzhJkRClcG55zRRJaqXQBstQIeQZZxrn7egdsW3V3N3vdQc8ZBv7YFZSKN79S7Zj1zl8AQp0u/vZV16l+kQIAWiQKlF0S1uwe+TzsMUKbwTlI+dJ2AkKCOBesiFIQWNaHPsilN2/9P6dg9SyEj9wSEFK3DXSZS8coCbufYgFzqwGdNksjSDkacNiSRpVr/iAFfFXmFjOv5aEgSGV0IbPVIIdOKs4kic51eOfRU+p4wHxKjI7NIIUiSu5qWSGkDyofHO8gsj2gMftSP2BDLWrm+E7ulACSpxLgXxvSvvBEXSJA/U1J2hVj+TIyEZTpjoAKSJR/pnwr/dqK6o/Zxka6hcJpy/dO0xWQNRWmg0RCGNkBLp1z2b5xAlh+SCFJ0TyNjctKecWRqNZVWvjgz79bqaLk8VXvDoCyn3Xwlaa23miJnK5wjVFbnWDLJBP1vc5UtMedyzghi5EnjVSZFuyPIzL/dCIWv5WI2zA9GiOXTsjfkbCLBjlKDnmqejFB0PqqCSNhiNO0be3OiUsFzOWgDSRsAcjL2EAuoDLImiSBF1VQNRf3SfRoZl8+5uMiCrNh8T1sRG01IosLP1B7I7aSanT9Tcf1X5dXt/QzSAldb0DOs8ItNL5gqTXFBk7VytYaaVUsQrXSDYZI0hjjtWFjMt7YeSinqkjZA6qk7Gmasjp6RpZuzN05TdXSQ4nEGK9q2kLFKBiZrv/7gI2PLwoDVteKTyHgpxv3UEEemBBFe9B5kmC0rJDZaCSUq/Ey6oheDTEV1Q9zBpMbrkGqmRtb/34yEhbtz3FHMun2UXbPLqErv3EBHKNhHXCBqNASlod4MWwZM2R90NV4xEfI0jJAORD9JVviHR9kVfmU7H2PhR7zI1mcy01D7dbRAn2GGCybtx2R4/dhJM9fy3WiYFrJM/PO7mtFLxfP5/sZN6s+kDUDjsJZRZNKF28OcLi+on2ksDp1ZkNkLkSk91FrITP5MmvOOTFf4JRNnxpynNQ/yZ57/MjClkt+akdI/G3wzGXc0BGfRvDjl2c56nHr5zow21kl5XXd82X8m7egcZ2jMv9lZ95h16lkyMbDHzKvw98uNUqat1H9C01LFfOkN/RQChBbbVJeXcibOELEBqvbVzkWWcXgha9+jQM9CJt2X85Bw9iIUChJZL7Fhl5e1msa8DD91qiJwKEGBsLoJqRdvjqvJZaL8WHLta+h4WQUKFfpFjyCytsJ1SK7o9cLQKYpEKyWKSRUyE6PrvAaXyPioIGhY4RudUmnoMq2QYB2NpH5umZxtquv2TvXYZ0pkOQk1LZXImC8DL/ppOSlvXmh86rYg3FM7jxrVtHOQZcf3kI29BetLp7LO51u75sjDTt9JGyCRfU8hw8XIZJ2LQVlaIJi5nI/MnjOt8JScAUlYJ6e6MzRPXlqPqdLMhrkphq5Gw4wWcpiFLFNMo8+43ps8rs9cwcBq2JRd5Y0UqysUBORDy87XNrc6PlNdq8rfPlaBPqNc67PXmpaRVpqyZ1OF75MNEarsf2oqxl8hk/rsmofItA0oXiEDbvd7Pc9tPjSAGs0+hJJY3a0s87Pr/e1pGyBdsLh1Us72NDLK6iB9trsXlXgd6bVkVhe+GunnNieTyJTdxAgyJl2HG051R7Ns9+MDG978dTzvbj01h+sxmpM/FlOrqbz3AzPIdMZKpdt3bhrLTXiRSUM5TbuKWM90n66SOKNzaFX4qZ1LVz5tUCjmvVZYngWy6FRIw+CXf4n2aTeGacUBcns8spSmxfXyTlqXdqb052pakMbXdPjYyED+slTshMW8hugpOvA4MtUnwS1k1sLJ/7aJ1VxaBovSVx1pHNRx2xOt1bQ6W3T84jtUY2fK8nRelE41sZw0+XgVtx0sppU/YzJKOGMYodBZ4cg8ughbb4ctSszulhm2c0Eq9xTJBcHyUlOa2kCfofxPkchSqRC+CA6S4K+0RRyandmTYvZdxTN7qBoKGj/n+CkZ01S5yFS77oOEyEQjpNx9j9wwwdLBn6Nr5bQ0UjUlTp+jnduWQd+ztnLblOPCev4cOqujR2Mmby0tbWsxvUqFHHG36wG8+q3mj1FjybJSCitue6cuMrnePzYytrz+NYe2xgao0uVuorqjC3qm7gTRYxQfIKqQ6YaSwkVmByNUZRIPoJisXtoBMZfGdpCxVic993Pp1uqcSF6lsU5rIo3EotakZbQRyQWiWuwaEq3wy7BPKeObYGZ4ST7491SKBLvyFAZdRROatiflwIMIqEr/7MknacfGOrpM+F5JFJkOlZXuakZk+ElzGdCzHXqQ1ZS1cWQ6flbti6dy6MhaVJBYToceWSal7DFKv33eyWS1RI+LUhxNz32j+LuMaqbz0BfiAon0ICst0Tuf+fuB0jzqTBGXOEcnIz3IoCft8XkXI6AfHVVfZnR5oRn8+4jkFV3lxnzAyxMyYLbn91/qMo+KSDfhWG13ju8urkX/nh5EHA+zDw8bfabrD1y1+P07qoH66bdoP+2S4uVH6I5hd3S8Bxn+0iaF9NO7sDNPykP+8w+BPddAJzrKnexuRv7KXYzR3coNWeHxSh+dV2fShkv+D/fnnlln+Im1Nz19JqH/rftjUx/9LjuHAn/mZbvUe0JLz/D/qTdraMOWnyyFf6HVbsOnLhLI0hV88qcO7UiNPrYf0tQZ/g/mzOLUyTSrKfvPPMP/y1T2S9qp3ElG55xDsQs57/RBz6dDxgMBn0JG7RLTZ3ONLjVD371fEbeRxUrw3CRy2V8taPOq7O+fqws6Ftjf6LWtPN/oGuxlZ/hZ8Xlr8Nwwv8L/1hn+8tOpvWu1/Ay/NWemmA/5Z/dBM5xWez1ndiI3dmBdMNt5hzXn0KnwjutHz/BTK7c9+W0y+xz576irMPj1b5zhNx1LfLo5aS59XzhEP1a18Ay/U0cHNnH2fB49b4DxXfb2t7wk85dL2pXJ/T99ht+OUDTT6yYso/X9WfO1K51n+n00wWl//wSzfX4rwkRWvWeudhWmj+tHzqFBLOMSSqeq8MuZ3i4973S4E191ZTF99ur8ZigDfi8VtEtUb1OgJ8uUhr1Un/nKGHLEutm/3qqnx65FnNEdHT/DT+PfjMsiq2l1efUisb7cpqLS7+ay5gjU7t2c+mYczdzVDKrtkR2AnrQKERYvqTe7/fn6ddJH8k9fx/N+t2lHVR7ItbcDJt65UGv4217OZlW3haK2rjCtCxZoDX+53/nSJA4fBJTdg8PXqtKtZqleqv/Hb2BGmH6aPAZi/jcwkxbd84KYZsIHmOQFM+EFpQdg+i7txDFvpGDGvk9r/XqMMcOvP82wTi/7abWSC7+YlblykDoh8zEb4DFnfGVsuQ34D1eC3dKJmolAAAAAAElFTkSuQmCC" alt="User Profile">
+      </div>
+    </div>
+  </header>
+
+  <main class="map-page-container">
+    <section class="map-container">
+      <div id="weather-map"></div>
+      <div class="weather-tooltip" id="weather-tooltip"></div>
+      <div class="map-controls">
+        <div class="search-bar">
+          <input type="text" placeholder="Search location...">
+          <button class="search-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="zoom-controls">
+          <button class="zoom-in">+</button>
+          <button class="zoom-out">-</button>
+        </div>
+        <div class="map-legend">
+          <h4>Weather Conditions</h4>
+          <div class="legend-item">
+            <span class="color-swatch sunny"></span>
+            <span class="label">Sunny</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-swatch cloudy"></span>
+            <span class="label">Cloudy</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-swatch rainy"></span>
+            <span class="label">Rainy</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-swatch stormy"></span>
+            <span class="label">Stormy</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-swatch snowy"></span>
+            <span class="label">Snowy</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-swatch foggy"></span>
+            <span class="label">Foggy</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="map-tabs">
+    <div class="tab active" data-tab="weather">Weather</div>
+    <div class="tab" data-tab="temperature">Temperature</div>
+    <div class="tab" data-tab="precipitation">Precipitation</div>
+    <div class="tab" data-tab="wind">Wind</div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Weather data for different locations
+      const weatherData = [
+        {
+          id: 1,
+          name: "New York",
+          condition: "cloudy",
+          icon: "☁️",
+          temperature: "68°F",
+          humidity: "65%",
+          wind: "8 mph NE",
+          precipitation: "10%",
+          position: { left: "20%", top: "30%" },
+          size: 60
+        },
+        {
+          id: 2,
+          name: "Los Angeles",
+          condition: "sunny",
+          icon: "☀️",
+          temperature: "82°F",
+          humidity: "45%",
+          wind: "5 mph SW",
+          precipitation: "0%",
+          position: { left: "12%", top: "40%" },
+          size: 60
+        },
+        {
+          id: 3,
+          name: "Chicago",
+          condition: "rainy",
+          icon: "🌧️",
+          temperature: "58°F",
+          humidity: "80%",
+          wind: "12 mph NW",
+          precipitation: "75%",
+          position: { left: "30%", top: "25%" },
+          size: 60
+        },
+        {
+          id: 4,
+          name: "Miami",
+          condition: "stormy",
+          icon: "⛈️",
+          temperature: "75°F",
+          humidity: "90%",
+          wind: "20 mph SE",
+          precipitation: "85%",
+          position: { left: "35%", top: "45%" },
+          size: 60
+        },
+        {
+          id: 5,
+          name: "Denver",
+          condition: "snowy",
+          icon: "❄️",
+          temperature: "28°F",
+          humidity: "70%",
+          wind: "15 mph N",
+          precipitation: "60%",
+          position: { left: "22%", top: "35%" },
+          size: 60
+        },
+        {
+          id: 6,
+          name: "Seattle",
+          condition: "foggy",
+          icon: "🌫️",
+          temperature: "52°F",
+          humidity: "85%",
+          wind: "6 mph W",
+          precipitation: "40%",
+          position: { left: "15%", top: "20%" },
+          size: 60
+        },
+        {
+          id: 7,
+          name: "Boston",
+          condition: "cloudy",
+          icon: "☁️",
+          temperature: "62°F",
+          humidity: "60%",
+          wind: "10 mph NE",
+          precipitation: "15%",
+          position: { left: "25%", top: "22%" },
+          size: 50
+        },
+        {
+          id: 8,
+          name: "Phoenix",
+          condition: "sunny",
+          icon: "☀️",
+          temperature: "95°F",
+          humidity: "20%",
+          wind: "8 mph S",
+          precipitation: "0%",
+          position: { left: "18%", top: "42%" },
+          size: 50
+        },
+        {
+          id: 9,
+          name: "Atlanta",
+          condition: "rainy",
+          icon: "🌧️",
+          temperature: "70°F",
+          humidity: "75%",
+          wind: "9 mph SE",
+          precipitation: "65%",
+          position: { left: "32%", top: "38%" },
+          size: 50
+        },
+        {
+          id: 10,
+          name: "Dallas",
+          condition: "sunny",
+          icon: "☀️",
+          temperature: "85°F",
+          humidity: "40%",
+          wind: "12 mph SW",
+          precipitation: "5%",
+          position: { left: "28%", top: "45%" },
+          size: 50
+        },
+        {
+          id: 11,
+          name: "London",
+          condition: "rainy",
+          icon: "🌧️",
+          temperature: "55°F",
+          humidity: "80%",
+          wind: "15 mph SW",
+          precipitation: "70%",
+          position: { left: "48%", top: "22%" },
+          size: 60
+        },
+        {
+          id: 12,
+          name: "Paris",
+          condition: "cloudy",
+          icon: "☁️",
+          temperature: "60°F",
+          humidity: "65%",
+          wind: "8 mph NW",
+          precipitation: "20%",
+          position: { left: "50%", top: "25%" },
+          size: 60
+        },
+        {
+          id: 13,
+          name: "Tokyo",
+          condition: "sunny",
+          icon: "☀️",
+          temperature: "72°F",
+          humidity: "55%",
+          wind: "6 mph E",
+          precipitation: "10%",
+          position: { left: "80%", top: "35%" },
+          size: 60
+        },
+        {
+          id: 14,
+          name: "Sydney",
+          condition: "sunny",
+          icon: "☀️",
+          temperature: "78°F",
+          humidity: "60%",
+          wind: "10 mph SE",
+          precipitation: "5%",
+          position: { left: "85%", top: "70%" },
+          size: 60
+        },
+        {
+          id: 15,
+          name: "Moscow",
+          condition: "snowy",
+          icon: "❄️",
+          temperature: "25°F",
+          humidity: "75%",
+          wind: "18 mph N",
+          precipitation: "80%",
+          position: { left: "60%", top: "20%" },
+          size: 60
+        }
+      ]
+  
+      // Initialize the map
+      initializeWeatherMap(weatherData);
+      
+      // Set up tab switching
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          const tabName = this.getAttribute('data-tab');
+          updateMapView(tabName, weatherData);
+        });
+      });
+      
+      // Set up search functionality
+      const searchBar = document.querySelector('.search-bar input');
+      const searchButton = document.querySelector('.search-button');
+      
+      searchButton.addEventListener('click', function() {
+        searchLocation(searchBar.value, weatherData);
+      });
+      
+      searchBar.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          searchLocation(searchBar.value, weatherData);
+        }
+      });
+      
+      // Set up zoom controls
+      document.querySelector('.zoom-in').addEventListener('click', zoomIn);
+      document.querySelector('.zoom-out').addEventListener('click', zoomOut);
+    });
+  
+    function initializeWeatherMap(weatherData) {
+      const mapContainer = document.getElementById('weather-map');
+      const tooltip = document.getElementById('weather-tooltip');
+      
+      // Create weather location markers
+      weatherData.forEach(location => {
+        const locationMarker = document.createElement('div');
+        locationMarker.className = `weather-location ${location.condition}`;
+        locationMarker.style.left = location.position.left;
+        locationMarker.style.top = location.position.top;
+        locationMarker.style.width = `${location.size}px`;
+        locationMarker.style.height = `${location.size}px`;
+        locationMarker.textContent = location.icon;
+        locationMarker.dataset.id = location.id;
+        
+        // Add hover event to show tooltip
+        locationMarker.addEventListener('mouseover', function(e) {
+          showWeatherTooltip(e, location, tooltip);
+        });
+        
+        locationMarker.addEventListener('mouseout', function() {
+          hideWeatherTooltip(tooltip);
+        });
+        
+        // Add click event to show detailed info
+        locationMarker.addEventListener('click', function() {
+          showWeatherDetails(location);
+        });
+        
+        mapContainer.appendChild(locationMarker);
+      });
+    }
+  
+    function showWeatherTooltip(event, location, tooltip) {
+      tooltip.innerHTML = `
+        <h3>${location.name}</h3>
+        <div class="condition">
+          <span class="condition-icon">${location.icon}</span>
+          <span>${capitalizeFirstLetter(location.condition)}</span>
+        </div>
+        <div class="weather-details">
+          <div class="weather-detail">
+            <span class="label">Temperature</span>
+            <span class="value">${location.temperature}</span>
+          </div>
+          <div class="weather-detail">
+            <span class="label">Humidity</span>
+            <span class="value">${location.humidity}</span>
+          </div>
+          <div class="weather-detail">
+            <span class="label">Wind</span>
+            <span class="value">${location.wind}</span>
+          </div>
+          <div class="weather-detail">
+            <span class="label">Precipitation</span>
+            <span class="value">${location.precipitation}</span>
+          </div>
+        </div>
+      `;
+      
+      // Position the tooltip
+      const rect = event.target.getBoundingClientRect();
+      const mapRect = document.getElementById('weather-map').getBoundingClientRect();
+      
+      let left = rect.left + rect.width / 2 - mapRect.left;
+      let top = rect.top + rect.height + 10 - mapRect.top;
+      
+      // Adjust if tooltip would go off the right edge
+      if (left + 200 > mapRect.width) {
+        left = mapRect.width - 220;
+      }
+      
+      // Adjust if tooltip would go off the bottom edge
+      if (top + tooltip.offsetHeight > mapRect.height) {
+        top = rect.top - tooltip.offsetHeight - 10 - mapRect.top;
+      }
+      
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.style.opacity = '1';
+    }
+  
+    function hideWeatherTooltip(tooltip) {
+      tooltip.style.opacity = '0';
+    }
+  
+    function showWeatherDetails(location) {
+      alert(`
+        Weather Details for ${location.name}:
+        Condition: ${capitalizeFirstLetter(location.condition)}
+        Temperature: ${location.temperature}
+        Humidity: ${location.humidity}
+        Wind: ${location.wind}
+        Precipitation: ${location.precipitation}
+      `);
+    }
+  
+    function updateMapView(tabName, weatherData) {
+      const mapContainer = document.getElementById('weather-map');
+      const locationMarkers = document.querySelectorAll('.weather-location');
+      
+      // Update the map based on the selected tab
+      switch(tabName) {
+        case 'weather':
+          locationMarkers.forEach(marker => {
+            const location = weatherData.find(loc => loc.id == marker.dataset.id);
+            marker.className = `weather-location ${location.condition}`;
+            marker.textContent = location.icon;
+          });
+          break;
+          
+        case 'temperature':
+          locationMarkers.forEach(marker => {
+            const location = weatherData.find(loc => loc.id == marker.dataset.id);
+            const temp = parseInt(location.temperature);
+            let tempClass;
+            
+            if (temp < 32) tempClass = 'snowy';
+            else if (temp < 50) tempClass = 'foggy';
+            else if (temp < 70) tempClass = 'cloudy';
+            else if (temp < 85) tempClass = 'sunny';
+            else tempClass = 'stormy';
+            
+            marker.className = `weather-location ${tempClass}`;
+            marker.textContent = location.temperature;
+          });
+          break;
+          
+        case 'precipitation':
+          locationMarkers.forEach(marker => {
+            const location = weatherData.find(loc => loc.id == marker.dataset.id);
+            const precip = parseInt(location.precipitation);
+            let precipClass;
+            
+            if (precip === 0) precipClass = 'sunny';
+            else if (precip < 30) precipClass = 'cloudy';
+            else if (precip < 60) precipClass = 'foggy';
+            else if (precip < 80) precipClass = 'rainy';
+            else precipClass = 'stormy';
+            
+            marker.className = `weather-location ${precipClass}`;
+            marker.textContent = location.precipitation;
+          });
+          break;
+          
+        case 'wind':
+          locationMarkers.forEach(marker => {
+            const location = weatherData.find(loc => loc.id == marker.dataset.id);
+            const windSpeed = parseInt(location.wind);
+            let windClass;
+            
+            if (windSpeed < 5) windClass = 'sunny';
+            else if (windSpeed < 10) windClass = 'cloudy';
+            else if (windSpeed < 15) windClass = 'foggy';
+            else if (windSpeed < 20) windClass = 'rainy';
+            else windClass = 'stormy';
+            
+            marker.className = `weather-location ${windClass}`;
+            marker.textContent = location.wind.split(' ')[0];
+          });
+          break;
+      }
+    }
+  
+    function searchLocation(query, weatherData) {
+      if (!query.trim()) return;
+      
+      // Find location that matches the search query
+      const location = weatherData.find(loc => 
+        loc.name.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      if (location) {
+        // Highlight the location
+        const locationMarker = document.querySelector(`.weather-location[data-id="${location.id}"]`);
+        
+        // Add a highlight effect
+        locationMarker.style.transform = 'scale(1.2)';
+        locationMarker.style.boxShadow = '0 0 20px var(--primary-purple)';
+        
+        // Show the location details
+        showWeatherDetails(location);
+        
+        // Remove highlight after a delay
+        setTimeout(() => {
+          locationMarker.style.transform = '';
+          locationMarker.style.boxShadow = '';
+        }, 3000);
+      } else {
+        alert(`Location "${query}" not found.`);
+      }
+    }
+  
+    function zoomIn() {
+      const map = document.getElementById('weather-map');
+      const currentScale = getComputedStyle(map).getPropertyValue('--scale') || 1;
+      const newScale = parseFloat(currentScale) + 0.1;
+      
+      map.style.setProperty('--scale', newScale);
+      map.style.transform = `scale(${newScale})`;
+    }
+  
+    function zoomOut() {
+      const map = document.getElementById('weather-map');
+      const currentScale = getComputedStyle(map).getPropertyValue('--scale') || 1;
+      const newScale = Math.max(0.5, parseFloat(currentScale) - 0.1);
+      
+      map.style.setProperty('--scale', newScale);
+      map.style.transform = `scale(${newScale})`;
+    }
+  
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+  </script>
+  <script src="js/map1.js"></script>
+</body>
+</html>
